@@ -1,0 +1,573 @@
+  html_content = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Hotel Food Ordering & Pre-Order App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            perspective: 1000px;
+        }
+
+        .sidebar {
+            width: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .slide-indicators {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .indicator {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .indicator.active {
+            background: #fdbb2d;
+            color: #1a2a6c;
+            transform: scale(1.1);
+        }
+
+        .slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            background: white;
+            border-radius: 20px 0 0 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(100%) rotateY(20deg);
+            transition: all 0.8s ease;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) rotateY(0);
+        }
+
+        .title-slide {
+            text-align: center;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 3rem;
+            color: #fdbb2d;
+        }
+
+        .author-info {
+            font-size: 1.4rem;
+            margin-top: 2rem;
+        }
+
+        .slide-heading {
+            font-size: 2.5rem;
+            color: #1a2a6c;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #fdbb2d;
+            display: inline-block;
+        }
+
+        .content {
+            font-size: 1.4rem;
+            line-height: 1.6;
+        }
+
+        .problem-list, .feature-list, .impact-list {
+            list-style-type: none;
+            margin-left: 20px;
+        }
+
+        .problem-list li, .feature-list li, .impact-list li {
+            margin-bottom: 1.2rem;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .problem-list li:before {
+            content: "❗";
+            position: absolute;
+            left: 0;
+            color: #b21f1f;
+        }
+
+        .feature-list li:before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+            color: #1a2a6c;
+        }
+
+        .impact-list li:before {
+            content: "🔷";
+            position: absolute;
+            left: 0;
+            color: #1a2a6c;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background-color: #1a2a6c;
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .roadmap-phase {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 5px solid #1a2a6c;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .phase-title {
+            font-weight: bold;
+            color: #1a2a6c;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .conclusion-highlight {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1a2a6c;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #fff9e6;
+            border-radius: 10px;
+        }
+
+        .thank-you {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #1a2a6c;
+            margin-bottom: 2rem;
+        }
+
+        .contact-info {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background: #1a2a6c;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: #fdbb2d;
+            color: #1a2a6c;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 1.2rem;
+            color: #1a2a6c;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 70px;
+                flex-direction: row;
+                justify-content: center;
+                padding: 10px;
+            }
+
+            .slide-indicators {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .indicator {
+                width: 40px;
+                height: 40px;
+                font-size: 0.9rem;
+            }
+
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.4rem;
+            }
+
+            .slide-heading {
+                font-size: 2rem;
+            }
+
+            .content {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="slide-indicators">
+                <div class="indicator active" data-slide="0">1</div>
+                <div class="indicator" data-slide="1">2</div>
+                <div class="indicator" data-slide="2">3</div>
+                <div class="indicator" data-slide="3">4</div>
+                <div class="indicator" data-slide="4">5</div>
+                <div class="indicator" data-slide="5">6</div>
+                <div class="indicator" data-slide="6">7</div>
+                <div class="indicator" data-slide="7">8</div>
+                <div class="indicator" data-slide="8">9</div>
+                <div class="indicator" data-slide="9">10</div>
+            </div>
+        </div>
+
+        <div class="slides-container">
+            <!-- Slide 1 - Title Slide -->
+            <div class="slide active title-slide">
+                <h1 class="title">Unified Hotel Food Ordering & Pre-Order App for Tamil Nadu</h1>
+                <h2 class="subtitle">V-INSPIRE National Innovation Challenge 2025</h2>
+                <div class="author-info">
+                    <p>S SATHISH KUMAR</p>
+                    <p>email ssathisheducation17@gmail.com</p>
+                    <p>phone no:6383005922 
+                      <p> Peri Institution of technology </p>
+                </div>
+                <div class="slide-number">Slide 1 of 10</div>
+            </div>
+
+            <!-- Slide 2 - Problem Statement -->
+            <div class="slide">
+                <h2 class="slide-heading">Problem Statement</h2>
+                <div class="content">
+                    <ul class="problem-list">
+                        <li>Customers do not know hotel menus or special dishes in advance.</li>
+                        <li>Long waiting time at hotels after ordering.</li>
+                        <li>Hotels struggle to promote signature foods.</li>
+                        <li>Tourists find it difficult to discover authentic local dishes.</li>
+                    </ul>
+                </div>
+                <div class="slide-number">Slide 2 of 10</div>
+            </div>
+
+            <!-- Slide 3 - Proposed Solution -->
+            <div class="slide">
+                <h2 class="slide-heading">Proposed Solution</h2>
+                <div class="content">
+                    <p>A single mobile app for all hotels in Tamil Nadu.</p>
+                    <br>
+                    <p><strong>Hotels upload:</strong></p>
+                    <ul class="feature-list">
+                        <li>📃 Menus</li>
+                        <li>⭐ Daily specials / signature dishes</li>
+                    </ul>
+                    <br>
+                    <p><strong>Customers can:</strong></p>
+                    <ul class="feature-list">
+                        <li>🔍 Browse menus in advance</li>
+                        <li>⏳ Pre-order before arriving</li>
+                        <li>📍 Discover regional specialties</li>
+                    </ul>
+                </div>
+                <div class="slide-number">Slide 3 of 10</div>
+            </div>
+
+            <!-- Slide 4 - Key Features -->
+            <div class="slide">
+                <h2 class="slide-heading">Key Features</h2>
+                <div class="content">
+                    <ul class="feature-list">
+                        <li>Hotel-wise menu listing.</li>
+                        <li>Highlighted special foods.</li>
+                        <li>Pre-order system (for dine-in / takeaway).</li>
+                        <li>Multi-language support (Tamil + English).</li>
+                        <li>Optional delivery integration.</li>
+                    </ul>
+                </div>
+                <div class="slide-number">Slide 4 of 10</div>
+            </div>
+
+            <!-- Slide 5 - Uniqueness vs Existing Apps -->
+            <div class="slide">
+                <h2 class="slide-heading">Uniqueness vs Existing Apps</h2>
+                <div class="content">
+                    <table class="comparison-table">
+                        <tr>
+                            <th>Zomato/Swiggy</th>
+                            <th>Our App</th>
+                        </tr>
+                        <tr>
+                            <td>Restaurant delivery apps, not hotel-focused</td>
+                            <td>Hotel-exclusive, Tamil Nadu only, focuses on special foods + pre-order dine-in</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="slide-number">Slide 5 of 10</div>
+            </div>
+
+            <!-- Slide 6 - Innovation -->
+            <div class="slide">
+                <h2 class="slide-heading">Innovation</h2>
+                <div class="content">
+                    <ul class="feature-list">
+                        <li>Promotes local hotel food culture.</li>
+                        <li>Combines hospitality + FoodTech.</li>
+                        <li>First state-wide hotel menu aggregator.</li>
+                        <li>Supports tourism + economy.</li>
+                    </ul>
+                </div>
+                <div class="slide-number">Slide 6 of 10</div>
+            </div>
+
+            <!-- Slide 7 - Potential Impact -->
+            <div class="slide">
+                <h2 class="slide-heading">Potential Impact</h2>
+                <div class="content">
+                    <ul class="impact-list">
+                        <li><strong>Societal</strong> → Saves time, improves customer convenience.</li>
+                        <li><strong>Economic</strong> → Boosts hotel revenue, reduces food waste.</li>
+                        <li><strong>Tourism</strong> → Promotes authentic Tamil Nadu cuisine to visitors.</li>
+                        <li><strong>Technology</strong> → Smart adoption of FoodTech in hospitality.</li>
+                    </ul>
+                </div>
+                <div class="slide-number">Slide 7 of 10</div>
+            </div>
+
+            <!-- Slide 8 - Roadmap -->
+            <div class="slide">
+                <h2 class="slide-heading">Roadmap</h2>
+                <div class="content">
+                    <div class="roadmap-phase">
+                        <div class="phase-title">Phase 1: Prototype</div>
+                        <div>Pilot with 2–3 districts</div>
+                    </div>
+                    <div class="roadmap-phase">
+                        <div class="phase-title">Phase 2: Expansion</div>
+                        <div>Expand to all major Tamil Nadu cities</div>
+                    </div>
+                    <div class="roadmap-phase">
+                        <div class="phase-title">Phase 3: Full Implementation</div>
+                        <div>Full state coverage + delivery partnerships</div>
+                    </div>
+                </div>
+                <div class="slide-number">Slide 8 of 10</div>
+            </div>
+
+            <!-- Slide 9 - Conclusion -->
+            <div class="slide">
+                <h2 class="slide-heading">Conclusion</h2>
+                <div class="content">
+                    <div class="conclusion-highlight">
+                        "One app, all hotels, all menus, all special foods – anytime, anywhere in Tamil Nadu."
+                    </div>
+                    <p><strong>Value:</strong> Solves real customer + hotel problems.</p>
+                    <p>Ready for IPR filing, MVP, commercialization with V-INSPIRE support.</p>
+                </div>
+                <div class="slide-number">Slide 9 of 10</div>
+            </div>
+
+            <!-- Slide 10 - Thank You -->
+            <div class="slide">
+                <h2 class="thank-you">Thank You</h2>
+                <div class="content">
+                    <p> name S SATHISHKUMAR
+                  </p>
+                    <div class="contact-info">
+                        <p>Contact: +91 6383005922</p>
+                        <p>email ssathisheducation27@gmail.com</p>
+                    </div>
+                </div>
+                <div class="slide-number">Slide 10 of 10</div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" id="prev-btn"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="nav-btn" id="next-btn">Next <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            const indicators = document.querySelectorAll('.indicator');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            let currentSlide = 0;
+
+            // Function to update slides
+            function updateSlide(index) {
+                // Remove active class from all slides and indicators
+                slides.forEach(slide => slide.classList.remove('active'));
+                indicators.forEach(indicator => indicator.classList.remove('active'));
+
+                // Add active class to current slide and indicator
+                slides[index].classList.add('active');
+                indicators[index].classList.add('active');
+
+                // Update current slide index
+                currentSlide = index;
+            }
+
+            // Event listeners for indicators
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    updateSlide(index);
+                });
+            });
+
+            // Event listeners for navigation buttons
+            prevBtn.addEventListener('click', () => {
+                if (currentSlide > 0) {
+                    updateSlide(currentSlide - 1);
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentSlide < slides.length - 1) {
+                    updateSlide(currentSlide + 1);
+                }
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' && currentSlide > 0) {
+                    updateSlide(currentSlide - 1);
+                } else if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) {
+                    updateSlide(currentSlide + 1);
+                }
+            });
+
+            // Touch swipe for mobile devices
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            document.querySelector('.slides-container').addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+
+            document.querySelector('.slides-container').addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+
+            function handleSwipe() {
+                if (touchEndX < touchStartX && currentSlide < slides.length - 1) {
+                    // Swipe left - next slide
+                    updateSlide(currentSlide + 1);
+                }
+
+                if (touchEndX > touchStartX && currentSlide > 0) {
+                    // Swipe right - previous slide
+                    updateSlide(currentSlide - 1);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+"""
+
+with open('presentation.html', 'w') as f:
+    f.write(html_content)
